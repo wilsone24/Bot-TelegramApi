@@ -17,7 +17,16 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Lets us use the /help command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Try typing anything and I will do my best to respond!')
+    await update.message.reply_text("""
+    The following commands are available:
+    
+    /start -> Welcome message
+    /help -> This message
+    /CifradoCesar -> Cifrate message
+    /DesCifradoCesar -> Descifrate message
+    /RRHCC -> Resolve ant RRHCC
+    /FGO -> Resolve any FGO
+    """)
 
 
 # Lets us use the /custom command
