@@ -4,6 +4,13 @@ from typing import Final
 from telegram import InputFile, Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import matplotlib.pyplot as plt
+import numpy as np
+import re
+from sympy.parsing.sympy_parser import parse_expr
+import sympy as sp
+from fractions import Fraction
+import RRLNHCCC as RRL
+
 
 print('Starting up bot...')
 
@@ -25,6 +32,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     /help -> This message
     /suma -> Add two numbers
     /const -> Show the plot of the constellations
+    /rrccc -> Solve a recurrence relation with constant coefficients
     """)
 
 async def suma_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -107,6 +115,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'Update {update} caused error {context.error}')
 
+async def rrccc_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    pass
+
 
 # Run the program
 if __name__ == '__main__':
@@ -118,6 +129,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('custom', custom_command))
     app.add_handler(CommandHandler('suma', suma_command))
     app.add_handler(CommandHandler('const', const_command))
+    app.add_handler(CommandHandler('rrccc', rrccc_command))
 
     # Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
