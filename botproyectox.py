@@ -31,8 +31,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     /start -> Welcome message
     /help -> This message
     /suma -> Add two numbers
-    /const -> Show the plot of the constellations
+    /stars -> Show the plot of the stars
     /rrccc -> Solve a recurrence relation with constant coefficients
+    /TODAS -> Show all the constellations
+
     """)
 
 async def suma_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -56,7 +58,7 @@ async def suma_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('This is a custom command, you can add whatever text you want here.')
 
-async def const_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def stars_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     stars = []
     with open('Bot-TelegramApi\Constellations\stars.txt') as file:
         for line in file:
@@ -70,6 +72,55 @@ async def const_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     plt.title("Todas las estrellas")
     plt.savefig('Bot-TelegramApi\Constellations\image\plot.png')
     await context.bot.send_photo(chat_id=update.message.chat_id, photo='Bot-TelegramApi\Constellations\image\plot.png')
+
+async def TODAS_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    with open('Bot-TelegramApi\Constellations\stars.txt', 'r') as f:
+        coordenadas_constelaciones = {}
+        stars = []
+        for line in f:
+            nombre =""
+            nombreLista=""
+            columnas = line.split()
+            data = line.strip().split()
+            x, y, = data[:2]
+            if (len(columnas) >= 7):
+                for i in range(6, len(columnas)):
+                    nombre = nombre + columnas[i]
+                nombreLista=(tuple(nombre.strip().split(';')))
+            stars.append((float(x), float(y),nombreLista))
+
+    archivos = ["Bot-TelegramApi\Constellations\constellations\Boyero.txt", "Bot-TelegramApi\Constellations\constellations\Casiopea.txt", 
+                "Bot-TelegramApi\Constellations\constellations\Cazo.txt", "Bot-TelegramApi\Constellations\constellations\Cygnet.txt","Bot-TelegramApi\Constellations\constellations\Geminis.txt",
+                "Bot-TelegramApi\Constellations\constellations\Hydra.txt", "Bot-TelegramApi\Constellations\constellations\OsaMayor.txt", "Bot-TelegramApi\Constellations\constellations\OsaMenor.txt"]
+    constelaciones = []
+    for archivo in archivos:
+        with open(archivo) as f:
+            constelaciones_archivo = [tuple(line.strip().replace(" ", "").split(",")) for line in f]
+        constelaciones.extend(constelaciones_archivo)
+
+    fig, ax = plt.subplots()
+
+    for estrella in stars:
+        x, y = estrella[0], estrella[1]
+        ax.scatter(x, y,s=5)
+
+    for constelacion in constelaciones:
+        estrella1, estrella2 = constelacion
+        x1, y1 = next((x, y) for x, y, nombre in stars if estrella1 in nombre)
+        x2, y2 = next((x, y) for x, y, nombre in stars if estrella2 in nombre)
+        ax.plot([x1, x2], [y1, y2], '-', lw=1.5)
+
+    plt.legend()
+    plt.subplots_adjust(left=0.148,
+                        bottom=0.062, 
+                        right=0.86, 
+                        top=1, 
+                        wspace=0.2, 
+                        hspace=0.2)
+    plt.grid(lw=0.2)
+    plt.savefig('Bot-TelegramApi\Constellations\image\TODAS.png')
+    await context.bot.send_photo(chat_id=update.message.chat_id, photo='Bot-TelegramApi\Constellations\image\TODAS.png')
+
 
 def handle_response(text: str) -> str:
     # Create your own response logic
@@ -128,8 +179,9 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('help', help_command))
     app.add_handler(CommandHandler('custom', custom_command))
     app.add_handler(CommandHandler('suma', suma_command))
-    app.add_handler(CommandHandler('const', const_command))
+    app.add_handler(CommandHandler('stars', stars_command))
     app.add_handler(CommandHandler('rrccc', rrccc_command))
+    app.add_handler(CommandHandler('TODAS', TODAS_command))
 
     # Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))

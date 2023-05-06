@@ -1,7 +1,7 @@
 
 import matplotlib.pyplot as plt
 
-with open("stars.txt", 'r') as f:
+with open("Bot-TelegramApi\Constellations\stars.txt", 'r') as f:
     coordenadas_constelaciones = {}
     stars = []
     for line in f:
@@ -17,10 +17,9 @@ with open("stars.txt", 'r') as f:
         stars.append((float(x), float(y),nombreLista))
 
 
-archivos = ["constellations/Boyero.txt", "constellations/Casiopea.txt", 
-            "constellations/Cazo.txt", "constellations/Cygnet.txt","constellations/Geminis.txt",
-            "constellations/Hydra.txt", "constellations/OsaMayor.txt", "constellations/OsaMenor.txt"]
-
+archivos = ["Bot-TelegramApi\Constellations\constellations\Boyero.txt", "Bot-TelegramApi\Constellations\constellations\Casiopea.txt", 
+            "Bot-TelegramApi\Constellations\constellations\Cazo.txt", "Bot-TelegramApi\Constellations\constellations\Cygnet.txt","Bot-TelegramApi\Constellations\constellations\Geminis.txt",
+            "Bot-TelegramApi\Constellations\constellations\Hydra.txt", "Bot-TelegramApi\Constellations\constellations\OsaMayor.txt", "Bot-TelegramApi\Constellations\constellations\OsaMenor.txt"]
 
 constelaciones = []
 
