@@ -11,4 +11,5 @@ x_coords = [star[0] for star in stars]
 y_coords = [star[1] for star in stars]
 plt.scatter(x_coords, y_coords, s=5)
 plt.title("Todas las estrellas")
+plt.savefig('Bot-TelegramApi\Constellations\image\plot.png')
 plt.show()

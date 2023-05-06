@@ -1,8 +1,9 @@
 from typing import Final
 
 # pip install python-telegram-bot
-from telegram import Update
+from telegram import InputFile, Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+import matplotlib.pyplot as plt
 
 print('Starting up bot...')
 
@@ -23,6 +24,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     /start -> Welcome message
     /help -> This message
     /suma -> Add two numbers
+    /const -> Show the plot of the constellations
     """)
 
 async def suma_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -46,6 +48,20 @@ async def suma_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('This is a custom command, you can add whatever text you want here.')
 
+async def const_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    stars = []
+    with open('Bot-TelegramApi\Constellations\stars.txt') as file:
+        for line in file:
+            data = line.strip().split()
+            x, y, _, id, mag, harvard, *name = data[:7]
+            stars.append((float(x), float(y), id, float(mag), harvard, name if isinstance(name, list) else name.split(" ")))
+
+    x_coords = [star[0] for star in stars]
+    y_coords = [star[1] for star in stars]
+    plt.scatter(x_coords, y_coords, s=5)
+    plt.title("Todas las estrellas")
+    plt.savefig('Bot-TelegramApi\Constellations\image\plot.png')
+    await context.bot.send_photo(chat_id=update.message.chat_id, photo='Bot-TelegramApi\Constellations\image\plot.png')
 
 def handle_response(text: str) -> str:
     # Create your own response logic
@@ -101,6 +117,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('help', help_command))
     app.add_handler(CommandHandler('custom', custom_command))
     app.add_handler(CommandHandler('suma', suma_command))
+    app.add_handler(CommandHandler('const', const_command))
 
     # Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
