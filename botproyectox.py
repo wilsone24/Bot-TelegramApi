@@ -12,7 +12,7 @@ from fractions import Fraction
 import RRLNHCCC as RRL
 
 
-print('Starting up bot...')
+print('Iniciando el bot...')
 
 TOKEN: Final = '6283280014:AAH3pAxZoLQt6WX670iFC1SB_EzBLZl61VQ'
 BOT_USERNAME: Final = '@finalproyectoxbot'
@@ -20,20 +20,19 @@ BOT_USERNAME: Final = '@finalproyectoxbot'
 
 # Lets us use the /start command
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Hello there! I\'m a Project X bot. How are you doing?')
+    await update.message.reply_text('Hola! Soy un bot de Proyecto X. ¿Cómo estás?')
 
 
 # Lets us use the /help command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("""
-    The following commands are available:
+    A continuación se muestra una lista de comandos disponibles:
     
-    /start -> Welcome message
-    /help -> This message
-    /suma -> Add two numbers
-    /stars -> Show the plot of the stars
-    /rrccc -> Solve a recurrence relation with constant coefficients
-    /TODAS -> Show all the constellations
+    /inicio -> Mensaje de bienvenida
+    /ayuda -> Este mensaje
+    /suma -> Suma dos números
+    /const -> Muestra los comandos pertenecientes al punto 1
+    /rrccc -> Resuelve una relación de recurrencia con coeficientes constantes
 
     """)
 
@@ -55,8 +54,73 @@ async def suma_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f'La suma de {numeros[0]} y {numeros[1]} es {suma}.')
 
 # Lets us use the /custom command
-async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('This is a custom command, you can add whatever text you want here.')
+async def const_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("""
+        A continuación se muestra una lista de comandos disponibles:
+        /stars -> Muestra todas las estrellas
+        /TODAS -> Muestra todas las constelaciones
+        /constelacion -> Muestra una sola constelacion constelación
+        """)
+
+async def constelacion_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    with open(r'Bot-TelegramApi\Constellations\stars.txt', 'r') as f:
+        coordenadas_constelaciones = {}
+        stars = []
+        for line in f:
+            nombre =""
+            nombreLista=""
+            columnas = line.split()
+            data = line.strip().split()
+            x, y, = data[:2]
+            if (len(columnas) >= 7):
+                for i in range(6, len(columnas)):
+                    nombre = nombre + columnas[i]
+                nombreLista=(tuple(nombre.strip().split(';')))
+            stars.append((float(x), float(y),nombreLista))
+
+
+    archivos = [r"Bot-TelegramApi\Constellations\constellations\Boyero.txt", r"Bot-TelegramApi\Constellations\constellations\Casiopea.txt", 
+                r"Bot-TelegramApi\Constellations\constellations\Cazo.txt", r"Bot-TelegramApi\Constellations\constellations\Cygnet.txt",r"Bot-TelegramApi\Constellations\constellations\Geminis.txt",
+                r"Bot-TelegramApi\Constellations\constellations\Hydra.txt", r"Bot-TelegramApi\Constellations\constellations\OsaMayor.txt", r"Bot-TelegramApi\Constellations\constellations\OsaMenor.txt"]
+
+    constelaciones = ['Boyero', 'Casiopea', 'Cazo', 'Cygnet', 'Geminis', 'Hydra', 'OsaMayor', 'OsaMenor']
+
+    # Obtener el número ingresado por el usuario
+    opcion = update.message.text.split()[1:]
+    if len(opcion) != 1:
+        await update.message.reply_text('Seleccione una constelación: \n 1. Boyero \n 2. Casiopea \n 3. Cazo \n 4. Cygnet \n 5. Geminis \n 6. Hydra \n 7. OsaMayor \n . OsaMenor')
+        await update.message.reply_text('Por favor ingresa un número separado por un espacio después del comando /constelacion.')
+        return
+    
+    opcion = int(opcion[0])
+
+    with open(f'Bot-TelegramApi\Constellations\constellations\{constelaciones[opcion-1]}.txt') as f:
+        constelaciones_archivo = [tuple(line.strip().replace(" ", "").split(",")) for line in f]
+
+
+    fig, ax = plt.subplots()
+    for estrella in stars:
+        x, y = estrella[0], estrella[1]
+        ax.scatter(x, y,s=5)
+
+    for constelacion in constelaciones_archivo:
+        estrella1, estrella2 = constelacion
+        x1, y1 = next((x, y) for x, y, nombre in stars if estrella1 in nombre)
+        x2, y2 = next((x, y) for x, y, nombre in stars if estrella2 in nombre)
+        ax.plot([x1, x2], [y1, y2], '-', lw=1.5)
+
+    ax.legend()
+    plt.subplots_adjust(left=0.148,
+                        bottom=0.062, 
+                        right=0.86, 
+                        top=1, 
+                        wspace=0.2, 
+                        hspace=0.2)
+    plt.grid(lw=0.2)
+    plt.savefig(r'Bot-TelegramApi\Constellations\image\una.png')
+    await context.bot.send_photo(chat_id=update.message.chat_id, photo=r'Bot-TelegramApi\Constellations\image\una.png')
+    
 
 async def stars_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     stars = []
@@ -126,16 +190,16 @@ def handle_response(text: str) -> str:
     # Create your own response logic
     processed: str = text.lower()
 
-    if 'hello' in processed:
-        return 'Hey there!'
+    if 'hola' in processed:
+        return 'Hola! como vas?'
 
-    if 'how are you' in processed:
-        return 'I\'m good!'
+    if 'como estas?' in processed:
+        return 'Muy bien, y tu?'
 
-    if 'i love python' in processed:
-        return 'Remember to subscribe!'
+    if 'me puedes ayudar?' in processed:
+        return 'Si, dime como te puedo ayudar'
 
-    return 'I don\'t understand'
+    return 'No entiendo lo que dices'
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -175,13 +239,14 @@ if __name__ == '__main__':
     app = Application.builder().token(TOKEN).build()
 
     # Commands
-    app.add_handler(CommandHandler('start', start_command))
-    app.add_handler(CommandHandler('help', help_command))
-    app.add_handler(CommandHandler('custom', custom_command))
+    app.add_handler(CommandHandler('inicio', start_command))
+    app.add_handler(CommandHandler('ayuda', help_command))
+    app.add_handler(CommandHandler('const', const_command))
     app.add_handler(CommandHandler('suma', suma_command))
     app.add_handler(CommandHandler('stars', stars_command))
     app.add_handler(CommandHandler('rrccc', rrccc_command))
     app.add_handler(CommandHandler('TODAS', TODAS_command))
+    app.add_handler(CommandHandler('constelacion', constelacion_command))
 
     # Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
