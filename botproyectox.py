@@ -10,6 +10,7 @@ from sympy.parsing.sympy_parser import parse_expr
 import sympy as sp
 from fractions import Fraction
 import RRLNHCCC as RRL
+import matplotlib.cm as cm
 
 
 print('Iniciando el bot...')
@@ -64,7 +65,7 @@ async def const_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def constelacion_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    with open(r'Bot-TelegramApi\Constellations\stars.txt', 'r') as f:
+    with open('Estrellas Bonitas\stars.txt', 'r') as f:
         coordenadas_constelaciones = {}
         stars = []
         for line in f:
@@ -72,73 +73,96 @@ async def constelacion_command(update: Update, context: ContextTypes.DEFAULT_TYP
             nombreLista=""
             columnas = line.split()
             data = line.strip().split()
-            x, y, = data[:2]
+            x, y, _, id, mag,  = data[:5]
             if (len(columnas) >= 7):
                 for i in range(6, len(columnas)):
                     nombre = nombre + columnas[i]
                 nombreLista=(tuple(nombre.strip().split(';')))
-            stars.append((float(x), float(y),nombreLista))
+            stars.append((float(x), float(y),id, float(mag), nombreLista))
 
 
-    archivos = [r"Bot-TelegramApi\Constellations\constellations\Boyero.txt", r"Bot-TelegramApi\Constellations\constellations\Casiopea.txt", 
-                r"Bot-TelegramApi\Constellations\constellations\Cazo.txt", r"Bot-TelegramApi\Constellations\constellations\Cygnet.txt",r"Bot-TelegramApi\Constellations\constellations\Geminis.txt",
-                r"Bot-TelegramApi\Constellations\constellations\Hydra.txt", r"Bot-TelegramApi\Constellations\constellations\OsaMayor.txt", r"Bot-TelegramApi\Constellations\constellations\OsaMenor.txt"]
+    archivos = ["Estrellas Bonitas\constellations\Boyero.txt", "Estrellas Bonitas\constellations\Casiopea.txt", 
+                "Estrellas Bonitas\constellations\Cazo.txt", "Estrellas Bonitas\constellations\Cygnet.txt","Estrellas Bonitas\constellations\Geminis.txt",
+                "Estrellas Bonitas\constellations\Hydra.txt", "Estrellas Bonitas\constellations\OsaMayor.txt", "Estrellas Bonitas\constellations\OsaMenor.txt"]
+
 
     constelaciones = ['Boyero', 'Casiopea', 'Cazo', 'Cygnet', 'Geminis', 'Hydra', 'OsaMayor', 'OsaMenor']
 
     # Obtener el número ingresado por el usuario
     opcion = update.message.text.split()[1:]
     if len(opcion) != 1:
-        await update.message.reply_text('Seleccione una constelación: \n 1. Boyero \n 2. Casiopea \n 3. Cazo \n 4. Cygnet \n 5. Geminis \n 6. Hydra \n 7. OsaMayor \n . OsaMenor')
+        await update.message.reply_text('Seleccione una constelación: \n 1. Boyero \n 2. Casiopea \n 3. Cazo \n 4. Cygnet \n 5. Geminis \n 6. Hydra \n 7. OsaMayor \n 8. OsaMenor')
         await update.message.reply_text('Por favor ingresa un número separado por un espacio después del comando /constelacion.')
         return
     
     opcion = int(opcion[0])
 
-    with open(f'Bot-TelegramApi\Constellations\constellations\{constelaciones[opcion-1]}.txt') as f:
+
+    with open(f'Estrellas Bonitas\constellations\{constelaciones[opcion-1]}.txt') as f:
         constelaciones_archivo = [tuple(line.strip().replace(" ", "").split(",")) for line in f]
 
 
-    fig, ax = plt.subplots()
-    for estrella in stars:
-        x, y = estrella[0], estrella[1]
-        ax.scatter(x, y,s=5)
+    fig, ax = plt.subplots(figsize=(8, 8))
+    x_coords = [star[0] for star in stars]
+    y_coords = [star[1] for star in stars]
+    mag = [star[3] for star in stars]
+    cmap = cm.get_cmap('Greys_r', 10)
+    sizes = [3/ (m + 2) for m in mag]
+    sc = ax.scatter(x_coords, y_coords, s=sizes, c=mag, cmap=cmap)
 
     for constelacion in constelaciones_archivo:
         estrella1, estrella2 = constelacion
-        x1, y1 = next((x, y) for x, y, nombre in stars if estrella1 in nombre)
-        x2, y2 = next((x, y) for x, y, nombre in stars if estrella2 in nombre)
-        ax.plot([x1, x2], [y1, y2], '-', lw=1.5)
+        x1, y1 = next((x, y) for x, y,id, mag, nombre in stars if estrella1 in nombre)
+        x2, y2 = next((x, y) for x, y,id, mag, nombre in stars if estrella2 in nombre)
+        ax.plot([x1, x2], [y1, y2], '-', lw=1)
 
-    ax.legend()
-    plt.subplots_adjust(left=0.148,
-                        bottom=0.062, 
-                        right=0.86, 
-                        top=1, 
+    ax.set_facecolor('black')
+    sc.set_clim(0, 10)
+    plt.legend()
+    plt.subplots_adjust(left=0.126,
+                        bottom=0.045, 
+                        right=0.902, 
+                        top=0.917, 
                         wspace=0.2, 
                         hspace=0.2)
-    plt.grid(lw=0.2)
-    plt.savefig(r'Bot-TelegramApi\Constellations\image\una.png')
-    await context.bot.send_photo(chat_id=update.message.chat_id, photo=r'Bot-TelegramApi\Constellations\image\una.png')
+
+    plt.title(f"Constelación {constelaciones[opcion-1]}")
+    plt.savefig(r'Estrellas Bonitas\images\una.png')
+    await context.bot.send_photo(chat_id=update.message.chat_id, photo=r'Estrellas Bonitas\images\una.png')
     
 
 async def stars_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     stars = []
-    with open('Bot-TelegramApi\Constellations\stars.txt') as file:
+    with open('Estrellas Bonitas\stars.txt') as file:
         for line in file:
             data = line.strip().split()
-            x, y, _, id, mag, harvard, *name = data[:7]
-            stars.append((float(x), float(y), id, float(mag), harvard, name if isinstance(name, list) else name.split(" ")))
+            x, y, _, id, mag= data[:5]
+            stars.append((float(x), float(y), id, float(mag)))
+
 
     x_coords = [star[0] for star in stars]
     y_coords = [star[1] for star in stars]
-    plt.scatter(x_coords, y_coords, s=5)
+    mag = [star[3] for star in stars]
+    cmap = cm.get_cmap('Greys_r', 10)
+    sizes = [3 / (m + 2) for m in mag]
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.set_facecolor('black')
+    sc = ax.scatter(x_coords, y_coords, s=sizes, c=mag, cmap=cmap)
+    sc.set_clim(0, 10)
+    plt.legend()
+    plt.subplots_adjust(left=0.126,
+                        bottom=0.045, 
+                        right=0.902, 
+                        top=0.917, 
+                        wspace=0.2, 
+                        hspace=0.2)
     plt.title("Todas las estrellas")
-    plt.savefig('Bot-TelegramApi\Constellations\image\plot.png')
-    await context.bot.send_photo(chat_id=update.message.chat_id, photo='Bot-TelegramApi\Constellations\image\plot.png')
+    plt.savefig('Estrellas Bonitas\images\stars.png')
+    await context.bot.send_photo(chat_id=update.message.chat_id, photo='Estrellas Bonitas\images\stars.png')
 
 async def TODAS_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    with open('Bot-TelegramApi\Constellations\stars.txt', 'r') as f:
+    with open('Estrellas Bonitas\stars.txt', 'r') as f:
         coordenadas_constelaciones = {}
         stars = []
         for line in f:
@@ -146,45 +170,53 @@ async def TODAS_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             nombreLista=""
             columnas = line.split()
             data = line.strip().split()
-            x, y, = data[:2]
+            x, y, _, id, mag,  = data[:5]
             if (len(columnas) >= 7):
                 for i in range(6, len(columnas)):
                     nombre = nombre + columnas[i]
                 nombreLista=(tuple(nombre.strip().split(';')))
-            stars.append((float(x), float(y),nombreLista))
+            stars.append((float(x), float(y),id, float(mag), nombreLista))
 
-    archivos = ["Bot-TelegramApi\Constellations\constellations\Boyero.txt", "Bot-TelegramApi\Constellations\constellations\Casiopea.txt", 
-                "Bot-TelegramApi\Constellations\constellations\Cazo.txt", "Bot-TelegramApi\Constellations\constellations\Cygnet.txt","Bot-TelegramApi\Constellations\constellations\Geminis.txt",
-                "Bot-TelegramApi\Constellations\constellations\Hydra.txt", "Bot-TelegramApi\Constellations\constellations\OsaMayor.txt", "Bot-TelegramApi\Constellations\constellations\OsaMenor.txt"]
+    archivos = ["Estrellas Bonitas\constellations\Boyero.txt", "Estrellas Bonitas\constellations\Casiopea.txt", 
+                "Estrellas Bonitas\constellations\Cazo.txt", "Estrellas Bonitas\constellations\Cygnet.txt","Estrellas Bonitas\constellations\Geminis.txt",
+                "Estrellas Bonitas\constellations\Hydra.txt", "Estrellas Bonitas\constellations\OsaMayor.txt", "Estrellas Bonitas\constellations\OsaMenor.txt"]
     constelaciones = []
     for archivo in archivos:
         with open(archivo) as f:
             constelaciones_archivo = [tuple(line.strip().replace(" ", "").split(",")) for line in f]
         constelaciones.extend(constelaciones_archivo)
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(8, 8))
 
-    for estrella in stars:
-        x, y = estrella[0], estrella[1]
-        ax.scatter(x, y,s=5)
+    x_coords = [star[0] for star in stars]
+    y_coords = [star[1] for star in stars]
+    mag = [star[3] for star in stars]
+    cmap = cm.get_cmap('Greys_r', 10)
+    sizes = [3/ (m + 2) for m in mag]
+    sc = ax.scatter(x_coords, y_coords, s=sizes, c=mag, cmap=cmap)
 
     for constelacion in constelaciones:
         estrella1, estrella2 = constelacion
-        x1, y1 = next((x, y) for x, y, nombre in stars if estrella1 in nombre)
-        x2, y2 = next((x, y) for x, y, nombre in stars if estrella2 in nombre)
-        ax.plot([x1, x2], [y1, y2], '-', lw=1.5)
+        x1, y1 = next((x, y) for x, y,id, mag, nombre in stars if estrella1 in nombre)
+        x2, y2 = next((x, y) for x, y,id, mag, nombre in stars if estrella2 in nombre)
+        ax.plot([x1, x2], [y1, y2], '-', lw=1)
 
+
+    ax.set_facecolor('black')
+
+    sc.set_clim(0, 10)
     plt.legend()
-    plt.subplots_adjust(left=0.148,
-                        bottom=0.062, 
-                        right=0.86, 
-                        top=1, 
+    plt.subplots_adjust(left=0.126,
+                        bottom=0.045, 
+                        right=0.902, 
+                        top=0.917, 
                         wspace=0.2, 
                         hspace=0.2)
-    plt.grid(lw=0.2)
-    plt.savefig('Bot-TelegramApi\Constellations\image\TODAS.png')
-    await context.bot.send_photo(chat_id=update.message.chat_id, photo='Bot-TelegramApi\Constellations\image\TODAS.png')
 
+    plt.title("Todas las constelaciones")
+    plt.savefig(r'Estrellas Bonitas\images\todas.png')
+    await context.bot.send_photo(chat_id=update.message.chat_id, photo=r'Estrellas Bonitas\images\todas.png')
+    
 
 def handle_response(text: str) -> str:
     # Create your own response logic

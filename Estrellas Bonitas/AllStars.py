@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 stars = []
-with open('stars.txt') as file:
+with open('Bot-TelegramApi\Constellations\stars.txt') as file:
     for line in file:
         data = line.strip().split()
         x, y, _, id, mag= data[:5]
