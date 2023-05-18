@@ -33,9 +33,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     /ayuda -> Este mensaje
     /suma -> Suma dos números
     /const -> Muestra los comandos pertenecientes al punto 1
-    /rrccc -> Resuelve una relación de recurrencia con coeficientes constantes
+    /RRLNHCCC -> Resuelve una relación de recurrencia lineal no homogenea con coeficientes constantes
 
     """)
+
 
 async def suma_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Obtener los números ingresados por el usuario
@@ -54,6 +55,7 @@ async def suma_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Responder con la suma
     await update.message.reply_text(f'La suma de {numeros[0]} y {numeros[1]} es {suma}.')
 
+
 # Lets us use the /custom command
 async def const_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("""
@@ -62,6 +64,7 @@ async def const_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         /TODAS -> Muestra todas las constelaciones
         /constelacion -> Muestra una sola constelacion constelación
         """)
+
 
 async def constelacion_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -129,7 +132,7 @@ async def constelacion_command(update: Update, context: ContextTypes.DEFAULT_TYP
     plt.title(f"Constelación {constelaciones[opcion-1]}")
     plt.savefig(r'Estrellas Bonitas\images\una.png')
     await context.bot.send_photo(chat_id=update.message.chat_id, photo=r'Estrellas Bonitas\images\una.png')
-    
+
 
 async def stars_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     stars = []
@@ -160,6 +163,7 @@ async def stars_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     plt.title("Todas las estrellas")
     plt.savefig('Estrellas Bonitas\images\stars.png')
     await context.bot.send_photo(chat_id=update.message.chat_id, photo='Estrellas Bonitas\images\stars.png')
+
 
 async def TODAS_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     with open('Estrellas Bonitas\stars.txt', 'r') as f:
@@ -216,7 +220,7 @@ async def TODAS_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     plt.title("Todas las constelaciones")
     plt.savefig(r'Estrellas Bonitas\images\todas.png')
     await context.bot.send_photo(chat_id=update.message.chat_id, photo=r'Estrellas Bonitas\images\todas.png')
-    
+
 
 def handle_response(text: str) -> str:
     # Create your own response logic
@@ -262,8 +266,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'Update {update} caused error {context.error}')
 
-async def rrccc_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    pass
+async def rrlnhccc_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    
+    valores = update.message.text.split()[1:]
+    print(valores)
+
+    if len(valores) != 2:
+        await update.message.reply_text('Digite la relacion de recurrencia no homogenea de la forma\n a*f(n-1)+b*f(n-2)+...+c*f(n-k)+g(n)\n y despues de un espacio los valores iniciales')
+        return
+    
+    sol = RRL.solucionar_no_homogenea(valores[0],valores[1])
+    await update.message.reply_text(f'La solucion es: {sol}')
+
 
 
 # Run the program
@@ -276,7 +290,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('const', const_command))
     app.add_handler(CommandHandler('suma', suma_command))
     app.add_handler(CommandHandler('stars', stars_command))
-    app.add_handler(CommandHandler('rrccc', rrccc_command))
+    app.add_handler(CommandHandler('RRLNHCCC', rrlnhccc_command))
     app.add_handler(CommandHandler('TODAS', TODAS_command))
     app.add_handler(CommandHandler('constelacion', constelacion_command))
 

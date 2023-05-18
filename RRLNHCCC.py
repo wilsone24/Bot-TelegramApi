@@ -39,13 +39,7 @@ def encontrar_k(ecuacion): #Extraido de ChatGPT
         idx = ecuacion.find('f(n-', idx)  # Buscar la siguiente aparición de 'f(n-' a partir del índice actual
     return k  # Devolver el valor máximo de k encontrado
 
-def pedir_numeros(k):
-    print("Ingrese los primeros", k, "números de la serie:")  # Imprime un mensaje que solicita ingresar los primeros k números de la serie
-    numeros = []  # Crea una lista vacía para almacenar los números ingresados
-    for i in range(k):  # Itera k veces
-        num = int(input("f(" + str(i) + "): "))  # Solicita al usuario ingresar el número para el término i-ésimo de la serie
-        numeros.append(num)  # Agrega el número ingresado a la lista
-    return numeros  # Devuelve la lista de números ingresados
+
 
 def crear_matriz(raices, valores):
   M=np.zeros([len(valores),len(raices)]) # Creamos una matriz de ceros con tamaño de valores y el tamaño de las raices
@@ -87,26 +81,6 @@ def crear_norecurrente(b, raices):
           s = s + " " + str(b[aux]) + str(raices[i]) + "**n" # Lo mismo pero no le añadimos el +
   return s
 
-def solucionar_homogenea(function):
-  coeficientes_float = extraer_coeficientes(function)
-  coeficientes_int = [int(f) for f in coeficientes_float]
-  raices = np.around(np.roots(coeficientes_int))
-  k = encontrar_k(function)
-  valores_iniciales=pedir_numeros(k)
-  matriz = crear_matriz(raices, valores_iniciales)
-  valores=np.array(valores_iniciales)
-  bes = np.linalg.solve(matriz, valores)
-  no_recurrente = crear_norecurrente(bes, raices)
-
-
-  print('k: ', k)
-  print('valores iniciales: ',valores)
-  print('coeficientes: ',coeficientes_int) 
-  print('raices',raices)
-  print('matriz:',matriz)
-  print('b: ', bes)
-  print('no recurrente: ', no_recurrente)
-  return no_recurrente
 
 def find_largest_number(s): 
     # Busca 'n**'
@@ -230,7 +204,7 @@ def crear_norecurrente_nh(b, raices, abc, t, rn): # Hace lo mismo que la recurre
   return s
 
 
-def solucionar_no_homogenea(funcion):
+def solucionar_no_homogenea(funcion,valores_iniciales):
   fn,gn = separar_gn(funcion)
   print('gn: ', gn)
   print('fn: ', fn)
@@ -239,7 +213,7 @@ def solucionar_no_homogenea(funcion):
   raices2 = np.around(np.roots(coeficientes_int2))
   k2 = encontrar_k(fn)
   t=find_largest_number(gn)
-  valores_iniciales2=pedir_numeros(k2)
+  valores_iniciales2=[int(numero) for numero in valores_iniciales.split(',')]
   rn = find_num_before_n(gn)
   coeficientes_abc = casos(funcion, k2, gn, t, rn)
   valores_iniciales_2=cambiar_valores(t,valores_iniciales2, coeficientes_abc, rn)
@@ -248,3 +222,4 @@ def solucionar_no_homogenea(funcion):
   coeficientes_resultado = np.linalg.solve(matriz2, valores2)
   no_recurrente = crear_norecurrente_nh(coeficientes_resultado, raices2, coeficientes_abc, t, rn)
   print('no recurrente: ', no_recurrente)
+  return no_recurrente
