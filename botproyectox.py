@@ -1,5 +1,4 @@
 from typing import Final
-
 # pip install python-telegram-bot
 from telegram import InputFile, Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
@@ -11,6 +10,8 @@ import sympy as sp
 from fractions import Fraction
 import RRLNHCCC as RRL
 import matplotlib.cm as cm
+import requests
+from io import BytesIO
 
 
 print('Iniciando el bot...')
@@ -21,19 +22,22 @@ BOT_USERNAME: Final = '@finalproyectoxbot'
 
 # Lets us use the /start command
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Hola! Soy un bot de Proyecto X. ¿Cómo estás?')
+    mensaje = '¡Hola! Bienvenido, Soy un bot de Proyecto X. ¿Cómo estás?. \n' \
+                  'Estoy aquí para mostarte cosas que nunca habias visto 💻⚛. \n' \
+                  'y resolver TODAS esas inquietudes acerca de estructuras discretas.🧠🤖 \n\n' \
+                  'para poder observar toda mi funcionalidad, Ejecuta el comando /help.'
+    await update.message.reply_text(mensaje)
 
 
 # Lets us use the /help command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("""
+    await update.message.reply_text("""🆘🆘🆘
     A continuación se muestra una lista de comandos disponibles:
     
-    /inicio -> Mensaje de bienvenida
-    /ayuda -> Este mensaje
-    /suma -> Suma dos números
-    /const -> Muestra los comandos pertenecientes al punto 1
-    /RRLNHCCC -> Resuelve una relación de recurrencia lineal no homogenea con coeficientes constantes
+    /start -> Mensaje de bienvenida
+    /help -> Muestra los comandos disponibles
+    /starscons -> Muestra los comandos Sobre las Estrellas y Constelaciones
+    /rrlnhccc -> Resuelve una relación de recurrencia lineal no homogenea con coeficientes constantes
 
     """)
 
@@ -61,7 +65,7 @@ async def const_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("""
         A continuación se muestra una lista de comandos disponibles:
         /stars -> Muestra todas las estrellas
-        /TODAS -> Muestra todas las constelaciones
+        /todas -> Muestra todas las constelaciones
         /constelacion -> Muestra una sola constelacion constelación
         """)
 
@@ -225,17 +229,7 @@ async def TODAS_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def handle_response(text: str) -> str:
     # Create your own response logic
     processed: str = text.lower()
-
-    if 'hola' in processed:
-        return 'Hola! como vas?'
-
-    if 'como estas?' in processed:
-        return 'Muy bien, y tu?'
-
-    if 'me puedes ayudar?' in processed:
-        return 'Si, dime como te puedo ayudar'
-
-    return 'No entiendo lo que dices'
+    pass
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -266,32 +260,54 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'Update {update} caused error {context.error}')
 
+def latex_img(equation):
+    '''
+    Render a equation in latex
+    '''
+
+    import requests
+    from io import BytesIO
+
+    response = requests.get(
+        'http://latex.codecogs.com/png.latex?\dpi{{1200}} {formula}'.format(formula=equation))
+
+    # Get the HTTP requested image
+    imagen_bytes = BytesIO(response.content)
+
+    return imagen_bytes
+
 async def rrlnhccc_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     valores = update.message.text.split()[1:]
     print(valores)
 
     if len(valores) != 2:
-        await update.message.reply_text('Digite la relacion de recurrencia no homogenea de la forma\n a*f(n-1)+b*f(n-2)+...+c*f(n-k)+g(n)\n y despues de un espacio los valores iniciales')
+        await update.message.reply_text('🥇 Digite la relacion de recurrencia no homogenea de la forma:\n\n  a*f(n-1)+b*f(n-2)+...+c*f(n-k)+g(n)\n  y despues de un espacio los valores iniciales.\n\n 🧠Por ejemplo: /rrlnhccc 4*f(n-1)-4*f(n-2)+n**2 1,3\n ')
         return
     
-    sol = RRL.solucionar_no_homogenea(valores[0],valores[1])
-    await update.message.reply_text(f'La solucion es: {sol}')
+    sol= RRL.solucionar_no_homogenea(valores[0],valores[1]) 
+    solucion = convertir_a_latex(sol)
+    img_sol = latex_img(solucion)
+    await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img_sol)
 
 
+
+def convertir_a_latex(funcion):
+  x = sp.sympify(funcion)
+  resultado = sp.latex(x)
+  return resultado
 
 # Run the program
 if __name__ == '__main__':
     app = Application.builder().token(TOKEN).build()
 
     # Commands
-    app.add_handler(CommandHandler('inicio', start_command))
-    app.add_handler(CommandHandler('ayuda', help_command))
-    app.add_handler(CommandHandler('const', const_command))
-    app.add_handler(CommandHandler('suma', suma_command))
+    app.add_handler(CommandHandler('start', start_command))
+    app.add_handler(CommandHandler('help', help_command))
+    app.add_handler(CommandHandler('starscons', const_command))
     app.add_handler(CommandHandler('stars', stars_command))
-    app.add_handler(CommandHandler('RRLNHCCC', rrlnhccc_command))
-    app.add_handler(CommandHandler('TODAS', TODAS_command))
+    app.add_handler(CommandHandler('rrlnhccc', rrlnhccc_command))
+    app.add_handler(CommandHandler('todas', TODAS_command))
     app.add_handler(CommandHandler('constelacion', constelacion_command))
 
     # Messages

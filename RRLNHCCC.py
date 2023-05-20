@@ -70,10 +70,10 @@ def crear_norecurrente(b, raices):
         aux = aux + 1
       else:
         if raices[i]==raices[i-1] and (i!= len(raices)-1): # Si es igual al anterior y no es la final
-          s = s  + str(b[aux]) + "n**" + str(i) + "*"+ str(raices[i]) + "**n + " # Elevamos n al contador y añadimos la raiz
+          s = s  + str(b[aux]) + "*n**" + str(i) + "*"+ str(raices[i]) + "**n + " # Elevamos n al contador y añadimos la raiz
           aux = aux + 1
         if raices[i]==raices[i-1] and (i== len(raices)-1): # Si es igual y es la final
-          s = s  + str(b[aux]) + "n**" + str(i) + "*"+ str(raices[i]) + "**n" # Lo mismo pero no le añadimos el +
+          s = s  + str(b[aux]) + "*n**" + str(i) + "*"+ str(raices[i]) + "**n" # Lo mismo pero no le añadimos el +
           aux = aux + 1
         if raices[i]!=raices[i-1] and (i!= len(raices)-1): # Si es diferente y no es la final
           s = s + " " + str(b[aux]) + str(raices[i]) + "**n + " # Elevamos la raiz a la n
